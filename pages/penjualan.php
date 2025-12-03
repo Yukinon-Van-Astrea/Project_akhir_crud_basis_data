@@ -1,20 +1,10 @@
 <?php
-/**
- * File: pages/penjualan.php
- * Deskripsi: Logika dan Tampilan CRUD untuk Tabel Penjualan (Transaksi Produk Tunggal).
- */
-
-// --- Persiapan Data: Ambil daftar Produk dan Pelanggan ---
-// Ambil daftar Produk (hanya yang stoknya > 0) untuk dropdown input transaksi
 $stmt_produk = $pdo->query("SELECT id_produk, nama_produk, harga, stok FROM produk WHERE stok > 0 ORDER BY nama_produk ASC");
 $list_produk = $stmt_produk->fetchAll();
 
-// Ambil daftar Pelanggan untuk dropdown input transaksi
 $stmt_pelanggan = $pdo->query("SELECT id_pelanggan, nama_pelanggan FROM pelanggan ORDER BY nama_pelanggan ASC");
 $list_pelanggan = $stmt_pelanggan->fetchAll();
 
-
-// --- 1. HANDLE CREATE (TAMBAH PENJUALAN) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_penjualan') {
     $id_produk = $_POST['id_produk'];
     $id_pelanggan = $_POST['id_pelanggan'];
@@ -22,8 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     try {
         $pdo->beginTransaction();
-
-        // A. Cek Harga dan Stok Produk
         $stmt_check = $pdo->prepare("SELECT harga, stok FROM produk WHERE id_produk = ?");
         $stmt_check->execute([$id_produk]);
         $produk = $stmt_check->fetch();
@@ -38,11 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $harga = $produk['harga'];
         $total_harga = $harga * $jumlah;
 
-        // B. Masukkan data ke tabel penjualan
         $stmt_insert = $pdo->prepare("INSERT INTO penjualan (id_produk, id_pelanggan, jumlah, total_harga) VALUES (?, ?, ?, ?)");
         $stmt_insert->execute([$id_produk, $id_pelanggan, $jumlah, $total_harga]);
 
-        // C. Kurangi Stok Produk
         $stmt_update = $pdo->prepare("UPDATE produk SET stok = stok - ? WHERE id_produk = ?");
         $stmt_update->execute([$jumlah, $id_produk]);
 
@@ -62,14 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// --- 2. HANDLE DELETE (HAPUS PENJUALAN) ---
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id_penjualan = $_GET['id'];
 
     try {
         $pdo->beginTransaction();
-
-        // A. Ambil Jumlah dan ID Produk dari transaksi yang akan dihapus
         $stmt_get = $pdo->prepare("SELECT id_produk, jumlah FROM penjualan WHERE id_penjualan = ?");
         $stmt_get->execute([$id_penjualan]);
         $transaksi = $stmt_get->fetch();
@@ -78,11 +61,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
             throw new Exception("Transaksi tidak ditemukan.");
         }
 
-        // B. Hapus Transaksi
         $stmt_delete = $pdo->prepare("DELETE FROM penjualan WHERE id_penjualan = ?");
         $stmt_delete->execute([$id_penjualan]);
 
-        // C. Kembalikan Stok Produk
         $stmt_restore = $pdo->prepare("UPDATE produk SET stok = stok + ? WHERE id_produk = ?");
         $stmt_restore->execute([$transaksi['jumlah'], $transaksi['id_produk']]);
 
@@ -101,7 +82,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     }
 }
 
-// --- 3. HANDLE READ (BACA DATA) ---
 $sql_read = "
     SELECT 
         p.id_penjualan, 
@@ -228,7 +208,6 @@ endif;
 </div>
 
 <script>
-    // Skrip untuk perhitungan harga dan validasi stok (Perbaikan bug)
     $(document).ready(function() {
         const $selectProduk = $('#select-produk');
         const $inputJumlah = $('#input-jumlah');
@@ -238,12 +217,10 @@ endif;
 
         function updateCalculation() {
             const selectedOption = $selectProduk.find(':selected');
-            // Pastikan data atribut diambil sebagai angka atau 0 jika kosong
             const harga = parseFloat(selectedOption.data('harga')) || 0;
             const stok = parseInt(selectedOption.data('stok')) || 0;
             const jumlahBeli = parseInt($inputJumlah.val()) || 0;
             
-            // Update info stok
             $stokInfo.text(stok);
             
             if (selectedOption.val() === "") {
@@ -251,8 +228,6 @@ endif;
                  $btnSubmit.prop('disabled', true);
                  return;
             }
-
-            // Perhitungan Total
             const total = harga * jumlahBeli;
 
             const formatter = new Intl.NumberFormat('id-ID', {
@@ -263,7 +238,6 @@ endif;
             
             $totalDisplay.text(formatter.format(total));
 
-            // Validasi Stok
             let isValid = true;
             if (jumlahBeli <= 0) {
                 isValid = false;
@@ -283,17 +257,14 @@ endif;
                 }
             }
         }
-
-        // Jalankan fungsi saat produk atau jumlah diubah
         $selectProduk.on('change', updateCalculation);
         $inputJumlah.on('input', updateCalculation);
 
-        // Jalankan inisialisasi saat modal terbuka (untuk menampilkan nilai awal)
         $('#createPenjualanModal').on('shown.bs.modal', function () {
             updateCalculation();
         });
 
-        // Jalankan inisialisasi saat dokumen siap
+    
         updateCalculation();
     });
 </script>

@@ -1,5 +1,4 @@
 <?php
-// Logika CREATE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create') {
     $nama_produk = $_POST['nama_produk'];
     $harga = $_POST['harga'];
@@ -12,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header("Location: index.php?page=produk"); exit();
 }
 
-// Logika UPDATE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
     $id_produk = $_POST['id_produk'];
     $nama_produk = $_POST['nama_produk'];
@@ -26,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header("Location: index.php?page=produk"); exit();
 }
 
-// Logika DELETE
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id_produk = $_GET['id'];
     try {
@@ -37,7 +34,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     header("Location: index.php?page=produk"); exit();
 }
 
-// Logika READ (ID terkecil ke terbesar)
 $stmt = $pdo->query("SELECT * FROM produk ORDER BY id_produk ASC"); 
 $produk_data = $stmt->fetchAll();
 ?>

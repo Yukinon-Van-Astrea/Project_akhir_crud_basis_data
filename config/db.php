@@ -1,7 +1,7 @@
 <?php
 $host = 'localhost';
 $db   = 'warung_madura';
-$user = 'Admin';
+$user = 'root';
 $pass = '';
 $charset = 'utf8mb4';
 

@@ -1,5 +1,4 @@
 <?php
-// Logika CREATE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_pelanggan') {
     $nama_pelanggan = $_POST['nama_pelanggan'];
     $no_hp = $_POST['no_hp'];
@@ -11,7 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header("Location: index.php?page=pelanggan"); exit();
 }
 
-// Logika UPDATE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_pelanggan') {
     $id_pelanggan = $_POST['id_pelanggan'];
     $nama_pelanggan = $_POST['nama_pelanggan'];
@@ -24,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header("Location: index.php?page=pelanggan"); exit();
 }
 
-// Logika DELETE
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id_pelanggan = $_GET['id'];
     try {
@@ -35,7 +32,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     header("Location: index.php?page=pelanggan"); exit();
 }
 
-// Logika READ (ID terkecil ke terbesar)
 $stmt = $pdo->query("SELECT * FROM pelanggan ORDER BY id_pelanggan ASC"); 
 $pelanggan_data = $stmt->fetchAll();
 ?>

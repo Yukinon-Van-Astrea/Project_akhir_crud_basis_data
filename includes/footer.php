@@ -18,11 +18,10 @@
         const body = $('body');
         const themeSwitch = $('#themeSwitch');
         
-        // Handle ketika switch diubah
         themeSwitch.on('change', function() {
             if (this.checked) {
                 body.addClass('dark-mode');
-                setCookie('theme', 'dark', 365); // Simpan pilihan 1 tahun
+                setCookie('theme', 'dark', 365);
             } else {
                 body.removeClass('dark-mode');
                 setCookie('theme', 'light', 365);
